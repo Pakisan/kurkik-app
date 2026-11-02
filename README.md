@@ -29,12 +29,6 @@ curl -fsSL https://kurkik.pavelon.dev/install.sh | sh
 The script installs to `~/.kurkik` and checks the archive's SHA-256 checksum and PGP signature before it unpacks anything.
 To install a specific version, add `-s -- --version=1.0.0-eap.1`. Run it with `--help` to see the other options.
 
-**Homebrew**
-
-```bash
-brew install pakisan/kurkik/kurkik
-```
-
 **Windows, or a manual install:** download the zip for your platform from [Releases](https://github.com/Pakisan/kurkik-app/releases),
 unpack it, and add its `bin` folder to your `PATH`.
 
@@ -44,7 +38,7 @@ unpack it, and add its `bin` folder to your `PATH`.
 | macOS, Intel | `kurkik-<version>-osx-x86_64.zip` |
 | Linux x64 (glibc) | `kurkik-<version>-linux-x86_64.zip` |
 | Linux arm64 (glibc) | `kurkik-<version>-linux-aarch_64.zip` |
-| Windows x64 (planned) | `kurkik-<version>-windows-x86_64.zip` |
+| Windows x64 | `kurkik-<version>-windows-x86_64.zip` |
 
 Use the script or Homebrew where you can. macOS Gatekeeper and Windows SmartScreen warn about zips saved from a browser.
 
