@@ -27,7 +27,7 @@ VERSION_URL="${KURKIK_VERSION_URL:-https://kurkik.pavelon.dev/version.txt}"
 # nothing. Empty fingerprint = the key is not published yet, and the signature is not checked.
 # (unset, not empty: an empty KURKIK_PGP_FINGERPRINT means "pin nothing", which the tests use)
 PGP_FINGERPRINT="${KURKIK_PGP_FINGERPRINT-98E24FB7BBFF7ED258D5EAF1BFA6A9C8FBE45EDA}"
-PGP_KEY_URL="${KURKIK_PGP_KEY_URL:-https://raw.githubusercontent.com/$REPO/main/kurkik-release.asc}"
+PGP_KEY_URL="${KURKIK_PGP_KEY_URL:-https://raw.githubusercontent.com/$REPO/master/kurkik-release.asc}"
 
 HOME_DIR="${KURKIK_HOME:-$HOME/.kurkik}"
 VERSIONS_DIR="$HOME_DIR/versions"
