@@ -82,6 +82,9 @@ kurkik                                        # the terminal UI
 claude mcp add kurkik -- kurkik mcp           # any MCP client
 ```
 
+No cluster to try it on? [`demo/`](demo/) starts a staging and a prod of Kafka, Pulsar, SNS and SQS in Docker, with some
+drift between them, and walks through the commands above.
+
 ## Where it runs
 
 - **Command line** on macOS, Linux and Windows: the `kurkik` command, its terminal UI and its MCP server.
@@ -109,12 +112,12 @@ Every release includes `checksums_sha256.txt` and a PGP `.asc` signature for eac
 
 ```bash
 shasum -a 256 -c checksums_sha256.txt --ignore-missing
-curl -fsSLO https://raw.githubusercontent.com/Pakisan/kurkik-app/main/kurkik-release.asc
+curl -fsSLO https://raw.githubusercontent.com/Pakisan/kurkik-app/master/kurkik-release.asc
 gpg --import kurkik-release.asc
 gpg --verify kurkik-<version>-<platform>.zip.asc kurkik-<version>-<platform>.zip
 ```
 
-The release key's fingerprint is `<FINGERPRINT>`. Accept a signature only from that key.
+The release key's fingerprint is `98E2 4FB7 BBFF 7ED2 58D5  EAF1 BFA6 A9C8 FBE4 5EDA`. Accept a signature only from that key.
 
 ## Report an issue
 

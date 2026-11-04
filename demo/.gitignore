@@ -1,0 +1,11 @@
+# What a demo run leaves behind: kurkik's own files, and the documents it exports here.
+/.state/
+/*-kafka.yaml
+/*-kafka.json
+/*-pulsar.yaml
+/*-pulsar.json
+/*-sqs.yaml
+/*-sqs.json
+/*-sns.yaml
+/*-sns.json
+/docs/

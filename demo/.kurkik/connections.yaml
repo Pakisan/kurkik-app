@@ -1,0 +1,69 @@
+# The demo's connections: a staging and a prod of each system demo/docker-compose.yml starts.
+#
+# A project file, as a team would commit one: kurkik uses it once somebody on this machine has reviewed and trusted it
+# (kurkik trust). No secret is in it - LocalStack's secret key is read from KURKIK_DEMO_SECRET, which demo/env.sh sets.
+version: 1
+connections:
+  - name: staging
+    protocol: kafka
+    bootstrapServers:
+      - localhost:19092
+  - name: prod
+    protocol: kafka
+    bootstrapServers:
+      - localhost:29092
+    schemaRegistry:
+      url: http://localhost:18081
+      vendor: APICURIO
+  - name: shop-staging
+    protocol: pulsar
+    clientVersion: V4_0
+    adminUrl: http://localhost:18080
+  - name: shop-prod
+    protocol: pulsar
+    clientVersion: V5_0
+    adminUrl: http://localhost:28080
+  - name: queues-staging
+    protocol: sqs
+    region: us-east-1
+    accountId: "111111111111"
+    endpoint: http://localhost:14566
+    credentials:
+      source: ACCESS_KEY
+    secrets:
+      login:
+        username: "111111111111"
+        password: env:KURKIK_DEMO_SECRET
+  - name: queues-prod
+    protocol: sqs
+    region: us-east-1
+    accountId: "222222222222"
+    endpoint: http://localhost:14566
+    credentials:
+      source: ACCESS_KEY
+    secrets:
+      login:
+        username: "222222222222"
+        password: env:KURKIK_DEMO_SECRET
+  - name: topics-staging
+    protocol: sns
+    region: us-east-1
+    accountId: "111111111111"
+    endpoint: http://localhost:14566
+    credentials:
+      source: ACCESS_KEY
+    secrets:
+      login:
+        username: "111111111111"
+        password: env:KURKIK_DEMO_SECRET
+  - name: topics-prod
+    protocol: sns
+    region: us-east-1
+    accountId: "222222222222"
+    endpoint: http://localhost:14566
+    credentials:
+      source: ACCESS_KEY
+    secrets:
+      login:
+        username: "222222222222"
+        password: env:KURKIK_DEMO_SECRET

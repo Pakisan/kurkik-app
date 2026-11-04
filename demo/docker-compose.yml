@@ -1,0 +1,104 @@
+# kurkik's demo: a "staging" and a "prod" of each system kurkik reads, with some drift between them (seed.sh).
+#
+#   docker compose -f demo/docker-compose.yml up -d --wait && demo/seed.sh
+#
+# Ports are off the defaults (19092, 29092, 18080, 28080, 18081, 14566), so a Kafka, a Pulsar, a registry or a
+# LocalStack already running on this machine is left alone. Nothing is kept: `docker compose -f demo/docker-compose.yml down` forgets it.
+#
+# Each service has a small heap and a memory limit, about 5 GB in all: two Pulsar standalones left to size themselves
+# take most of a Docker VM, and the kernel then kills whichever container it likes - one that is not part of the demo.
+name: kurkik-demo
+
+x-kafka: &kafka
+  image: apache/kafka:3.9.1
+  mem_limit: 640m
+  healthcheck:
+    test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:$${PORT} > /dev/null 2>&1"]
+    interval: 5s
+    timeout: 10s
+    retries: 30
+
+x-kafka-env: &kafka-env
+  KAFKA_NODE_ID: 1
+  KAFKA_PROCESS_ROLES: broker,controller
+  KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+  KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  KAFKA_HEAP_OPTS: -Xms256m -Xmx256m
+
+# Standalone, without the functions worker and the stream storage: a cluster to read, started in seconds.
+x-pulsar: &pulsar
+  command: bin/pulsar standalone --no-functions-worker --no-stream-storage
+  mem_limit: 1400m
+  environment:
+    PULSAR_MEM: -Xms256m -Xmx256m -XX:MaxDirectMemorySize=256m
+  healthcheck:
+    test: ["CMD-SHELL", "curl -sf http://localhost:8080/admin/v2/brokers/health > /dev/null"]
+    interval: 5s
+    timeout: 10s
+    retries: 60
+
+services:
+  kafka-staging:
+    <<: *kafka
+    ports: ["19092:19092"]
+    environment:
+      <<: *kafka-env
+      PORT: 19092
+      # Each its own cluster, as two environments are; the image's default id is the same for all.
+      CLUSTER_ID: c3RhZ2luZy1rdXJraWstZA
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:19092,CONTROLLER://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:19092
+
+  kafka-prod:
+    <<: *kafka
+    ports: ["29092:29092"]
+    environment:
+      <<: *kafka-env
+      PORT: 29092
+      CLUSTER_ID: cHJvZC1rdXJraWstZGVtbw
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      # Prod enforces ACLs, as a prod does, so there are bindings to see (seed.sh grants them). Without a login every
+      # client is User:ANONYMOUS, made a super user here, so the demo itself - and kurkik - may still do anything.
+      KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
+      KAFKA_SUPER_USERS: User:ANONYMOUS
+
+  # Prod's schema registry: Apicurio's in-memory one, speaking the Confluent API kurkik reads. Nothing is kept.
+  registry:
+    image: apicurio/apicurio-registry-mem:2.6.5.Final
+    mem_limit: 512m
+    ports: ["18081:8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/apis/ccompat/v7/subjects > /dev/null"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  # Staging still on the 4.0 LTS line, prod on 5.0: kurkik reads each with its own client.
+  pulsar-staging:
+    <<: *pulsar
+    image: apachepulsar/pulsar:4.0.14
+    ports: ["18080:8080"]
+
+  pulsar-prod:
+    <<: *pulsar
+    image: apachepulsar/pulsar:5.0.0
+    ports: ["28080:8080"]
+
+  # One LocalStack, two accounts: an access key id of twelve digits is the account it acts in.
+  localstack:
+    image: localstack/localstack:4.9
+    mem_limit: 512m
+    ports: ["14566:4566"]
+    environment:
+      SERVICES: sns,sqs,sts
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health | grep -q '\"sqs\": \"\\(available\\|running\\)\"'"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
