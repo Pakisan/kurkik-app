@@ -23,7 +23,7 @@ Kurkik ships with its own JVM, so there is nothing to install first.
 **macOS and Linux**
 
 ```bash
-curl -fsSL https://kurkik.pavelon.dev/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/Pakisan/kurkik-app/master/install.sh | sh
 ```
 
 The script installs to `~/.kurkik` and checks the archive's SHA-256 checksum and PGP signature before it unpacks anything.
